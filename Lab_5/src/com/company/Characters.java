@@ -1,7 +1,7 @@
 package com.company;
-import java.util.Comparator;
+import java.util.*;
 
-public class Characters implements Comparator{
+public class Characters implements Comparable<Characters>{
     private String name;
 
     Characters(String name){
@@ -17,7 +17,8 @@ public class Characters implements Comparator{
     }
 
     @Override
-    public int compare(Object o1, Object o2) {
-        return o1.toString().compareTo(o2.toString());
+    public int compareTo(Characters o) {
+        return name.compareTo(o.getName());
     }
+
 }

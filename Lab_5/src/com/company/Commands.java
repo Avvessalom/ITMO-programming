@@ -1,6 +1,5 @@
 package com.company;
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -93,22 +92,58 @@ class Commands {
         System.out.println("See you later :)");
     }
 
-//    /**
-//     * Функция, импортирующая данные из указанного файла
-//     * @param argue - аргумент (путь к файлу)
-//     * @param characters - экземпляр коллекции
-//     * @throws FileNotFoundException - файл не найден
-//     */
-//    static void importer(String argue, SortedSet<Characters> characters) throws FileNotFoundException {
-//        File file2 = new File(argue);
-//        Scanner scanner2 = new Scanner(file2);
-//        while (scanner2.hasNext()) {
-//            String line = scanner2.nextLine();
-//            if (line.contains("<Name")) {
-//                String name = line.substring(line.indexOf("<") + 6, line.lastIndexOf(">") - 6);
-//                characters.add(new Characters(name));
-//            }
-//        }
-//        System.out.println("The file was imported successfully!");
-//    }
+    /**
+     * Функция, сохраняющая коллекцию в файл
+     * @param argue - аргумент (путь к файлу)
+     * @param characters - экземпляр коллекции
+     */
+    static void save( String argue,SortedSet<Characters> characters){
+        if (argue == null)
+            throw new IllegalArgumentException("Way is empty!");
+        try {
+            File file2 = new File(argue); // создакм экземпляр файла
+            FileWriter fileReader = new FileWriter(file2); // поток который подключается к текстовому файлу
+            BufferedWriter bufferedWriter = new BufferedWriter(fileReader); //соединяем BufferedWriter c FileWriter
+            bufferedWriter.write("<Characters>");
+            bufferedWriter.write("\n");
+            for (Characters p : characters){
+                bufferedWriter.write("  <Name>" + p.getName() + "</Name> ");
+                bufferedWriter.write("\n");
+            }
+            bufferedWriter.write("</Characters>");
+            bufferedWriter.flush();
+        }catch (java.io.IOException e){
+            e.printStackTrace();
+         }
+
+    }
+
+
+
+    /**
+     * Функция, импортирующая данные из указанного файла
+     * @param argue - аргумент (путь к файлу)
+     * @param characters - экземпляр коллекции
+     * @throws FileNotFoundException - файл не найден
+     */
+    static void importer(String argue, SortedSet<Characters> characters) throws FileNotFoundException {
+        if (argue == null)
+            throw new IllegalArgumentException("Way is empty!");
+        File file2 = new File(argue);
+        FileReader fileReader = new FileReader(file2);
+        BufferedReader bufferedReader = new BufferedReader(fileReader); // соединяем FileReader с BufferedReader
+
+        String line;
+        try {while ((line = bufferedReader.readLine()) != null) {
+            if (line.contains("<Name")) {
+                String name = line.substring(line.indexOf("<") + 10, line.lastIndexOf(">") - 10);
+                characters.add(new Characters(name));
+            }
+        }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        System.out.println("The file was imported successfully!");
+    }
 }

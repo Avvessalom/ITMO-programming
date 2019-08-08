@@ -8,8 +8,29 @@ public class Main {
     public static void main(String[] args) throws FileNotFoundException {
         String argue = null, newCommand;
         String command;
-        File file = new File("C:\\Users\\Erwin Eugen Rommel\\Documents\\GitHub\\ITMO_programming_lab\\Lab_5\\Characters.txt"); // создакм экземпляр файла
         SortedSet<Characters> characters = new TreeSet<>();
+        File file = new File("C:\\Users\\Erwin Eugen Rommel\\Documents\\GitHub\\ITMO_programming_lab\\Lab_5\\Characters"); // создакм экземпляр файла
+        FileReader fileReader = new FileReader(file);
+        BufferedReader bufferedReader = new BufferedReader(fileReader);
+
+        String line1;
+        try {
+            while ((line1 = bufferedReader.readLine()) != null) {
+                if (line1.contains("<Name")) {
+                    String name = line1.substring(line1.indexOf("<") + 9 + 1, line1.lastIndexOf(">") - 10);
+                    characters.add(new Characters(name));
+
+
+                }
+            }
+        }catch (Exception a){
+            a.printStackTrace();
+        }
+
+
+
+
+
 
 
 
@@ -22,30 +43,20 @@ public class Main {
                 "\n" + "                           remove_lower {element} - deletes all elements lower than this" +
                 "\n" + "                           clear - clears all elements from your collection" +
                 "\n" + "                           exit - close application" +
-                "\n" + "                           import {path} - import elements from the file");
+                "\n" + "                           import {path} - import elements from the file" +
+                "\n" + "                           save {path} - save elements in the file111");
 
         label:
         while (true) {
 
             try {
                 InputStreamReader inputStreamReader = new InputStreamReader(System.in); // поток чтения с консоли
-                FileWriter fileReader = new FileWriter(file); // поток который подключается к текстовому файлу
-
-                BufferedReader bufferedReader = new BufferedReader(inputStreamReader); // соединяем FileReader с BufferedReader
-                BufferedWriter bufferedWriter = new BufferedWriter(fileReader); //соединяем BufferedWriter c FileWriter
-
-
-//                while (!(line = bufferedReader.readLine()).equals("exit")) {
-//                    bufferedWriter.write(line + "\n"); // чтение и запись из командной строки с переносом
-//                }
-//
-//                bufferedReader.close(); // закрываем поток
-//                bufferedWriter.close();
+                BufferedReader bufferedReader1 = new BufferedReader(inputStreamReader); // соединяем FileReader с BufferedReader1
 
 
             System.out.println("Enter the command:");
             String line;
-            line = bufferedReader.readLine();
+            line = bufferedReader1.readLine();
             command = line ;
             command = command.replaceAll("\\s+", "");
 
@@ -60,12 +71,12 @@ public class Main {
 
             switch (newCommand) {
                 case "add":
-
+                case "Add":
                     Commands.add(argue, characters);
                     break;
 
                 case "show":
-
+                case "Show":
                     Commands.show(characters);
                     break;
 
@@ -100,10 +111,16 @@ public class Main {
                     Commands.exit();
                     break label;
 
-//                case "import":
-//
-//                    Commands.importer(argue, characters);
-//                    break;
+                case "import":
+                case "Import":
+                    Commands.importer(argue, characters);
+                    break;
+
+                case "save":
+                case "Save":
+
+                    Commands.save(argue,characters);
+                    break;
 
                 default:
                     System.out.println("You entered the wrong command! Read the list of commands carefully!");
