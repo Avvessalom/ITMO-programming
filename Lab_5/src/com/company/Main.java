@@ -9,15 +9,15 @@ public class Main {
         String argue = null, newCommand;
         String command;
         SortedSet<Characters> characters = new TreeSet<>();
-        File file = new File("C:\\Users\\Erwin Eugen Rommel\\Documents\\GitHub\\ITMO_programming_lab\\Lab_5\\Characters"); // создакм экземпляр файла
+        File file = new File("C:\\Users\\Erwin Eugen Rommel\\Documents\\GitHub\\ITMO_programming_lab\\Lab_5\\Characters.txt"); // создакм экземпляр файла
         FileReader fileReader = new FileReader(file);
         BufferedReader bufferedReader = new BufferedReader(fileReader);
 
         String line1;
         try {
             while ((line1 = bufferedReader.readLine()) != null) {
-                if (line1.contains("<Name")) {
-                    String name = line1.substring(line1.indexOf("<") + 9 + 1, line1.lastIndexOf(">") - 10);
+                if (line1.contains("\"Name")) {
+                    String name = line1.substring(line1.indexOf("\"") + 7 + 1, line1.lastIndexOf("\""));
                     characters.add(new Characters(name));
 
 
@@ -26,14 +26,6 @@ public class Main {
         }catch (Exception a){
             a.printStackTrace();
         }
-
-
-
-
-
-
-
-
 
         System.out.println("You can use this commands: " +
                 "\n" + "                           add {element} - adds an item to your collection" +
@@ -130,6 +122,25 @@ public class Main {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+                public void run(){
+                    try (PrintWriter writer = new PrintWriter(System.getenv("INPUT"))){
+                        writer.write("<Characters>");
+                        writer.write("\n");
+                        for (Characters p : characters){
+                            writer.write("  <Name>" + p.getName() + "</Name> ");
+                            writer.write("\n");
+                        }
+                        writer.write("</Characters>");
+                        System.out.println("bb");
+                        writer.flush();
+
+                    }catch (IOException e){
+                        e.printStackTrace();
+                    }
+                }
+            });
 
         }
     }

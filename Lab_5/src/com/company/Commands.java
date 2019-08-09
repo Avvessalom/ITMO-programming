@@ -104,17 +104,20 @@ class Commands {
             File file2 = new File(argue); // создакм экземпляр файла
             FileWriter fileReader = new FileWriter(file2); // поток который подключается к текстовому файлу
             BufferedWriter bufferedWriter = new BufferedWriter(fileReader); //соединяем BufferedWriter c FileWriter
-            bufferedWriter.write("<Characters>");
+            bufferedWriter.write("{");
+            bufferedWriter.write("\n");
+            bufferedWriter.write(" \"Characters\":{");
             bufferedWriter.write("\n");
             for (Characters p : characters){
-                bufferedWriter.write("  <Name>" + p.getName() + "</Name> ");
+                bufferedWriter.write("  \"Name\":\"" + p.getName() + "\",");
                 bufferedWriter.write("\n");
             }
-            bufferedWriter.write("</Characters>");
+            bufferedWriter.write("},");
             bufferedWriter.flush();
         }catch (java.io.IOException e){
             e.printStackTrace();
          }
+        System.out.println("The file was saved successfully!");
 
     }
 
@@ -135,8 +138,8 @@ class Commands {
 
         String line;
         try {while ((line = bufferedReader.readLine()) != null) {
-            if (line.contains("<Name")) {
-                String name = line.substring(line.indexOf("<") + 10, line.lastIndexOf(">") - 10);
+            if (line.contains("\"Name")) {
+                String name = line.substring(line.indexOf("\"") + 8, line.lastIndexOf("\""));
                 characters.add(new Characters(name));
             }
         }
