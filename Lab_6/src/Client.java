@@ -7,10 +7,11 @@ import java.net.InetAddress;
 
 class Client
 {
-    public static void main(String args[]) throws Exception
+    public static void main(String[] args) throws Exception
     {
-        BufferedReader inFromUser =
-                new BufferedReader(new InputStreamReader(System.in));
+        while (true)
+        {
+        BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
         DatagramSocket clientSocket = new DatagramSocket();
         InetAddress IPAddress = InetAddress.getByName("localhost");
         byte[] sendData = new byte[1024];
@@ -25,4 +26,4 @@ class Client
         System.out.println("FROM SERVER:" + modifiedSentence);
         clientSocket.close();
     }
-}
+}}
