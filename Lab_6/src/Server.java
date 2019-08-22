@@ -1,13 +1,13 @@
 import com.google.gson.Gson;
 
-import java.io.IOException;
+import java.io.*;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.concurrent.LinkedBlockingDeque;
+
 
 class Server {
     private static Date initializationDate = new Date();
@@ -21,7 +21,6 @@ class Server {
     private static SimpleDateFormat fDate = new SimpleDateFormat("dd.MM.yyy hh:mm:ss");
 
     public static void main(String[] args) throws Exception {
-//        ccharacters.add(new Characters("kot",12,11.00));
 //        ccharacters.add(new Characters("pes", 24, 11.5));
         serverSocket = new DatagramSocket(9876); //отправка пакетов байтовых массивов для транспорта сообщений
         byte[] receiveData = new byte[1024]; // полученное сообщение
@@ -30,21 +29,22 @@ class Server {
         while (true) {
             DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length); // входящее сообщениt
             serverSocket.receive(receivePacket);
-            clients.putIfAbsent(port, new CopyOnWriteArraySet<>());
             IPAddress = receivePacket.getAddress();
             port = receivePacket.getPort();
+            clients.putIfAbsent(port, new CopyOnWriteArraySet<>());
             String[] command = new String(receivePacket.getData(), 0, receivePacket.getLength()).split(" ");
             String check = "";
             if(command[0].equals("remove")||command[0].equals("add")||command[0].equals("add_if_max")){
                 check = command[1];
             }
             String element = check;
-            System.out.println("RECEIVED: " + command);
+            System.out.println("RECEIVED: " + command[0]);
 
 
             switch (command[0]) {
                 case "add":
-                  new Thread(()->add(element)).start();
+//                    clients.get(port).add(new Characters("kot",12,11.00));
+                    new Thread(()->add(element)).start();
                     break;
 
                 case "show":
@@ -53,11 +53,7 @@ class Server {
                     break;
 
                 case "info":
-                    try {
-                        new Thread(Server::info).start();
-                    }catch (java.lang.NullPointerException e){
-                        System.out.println("pizdec");
-                    }
+                      new Thread(Server::info).start();
                     break;
 
 
@@ -66,8 +62,19 @@ class Server {
                     break;
 
 
+                case "import":
+                    importer(receivePacket);
+                    break;
+
+                case "save":
+                    sendmsg("save");
+                    break;
+
                 case "exit":
                     break label;
+
+                default:
+                    sendmsg("You entered the wrong command! Read the list of commands carefully!");
             }
         }
     }
@@ -94,9 +101,10 @@ class Server {
      *
      * @param element элемент
      */
-    static void add(String element) {
+    private static void add(String element) {
         try {
             Characters characters = gson.fromJson(element, Characters.class);
+            System.out.println(characters);
             if (characters.getName() != null) {
                 clients.get(port).add(characters);
             } else
@@ -135,6 +143,24 @@ class Server {
             clients.get(port).remove(characters);
         }else {
             sendmsg("This element is not in collection!");
+        }
+    }
+
+
+    private static void importer(DatagramPacket rec){
+        try {
+            BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("Client" + port + ".xml")));
+            while (true) {
+                serverSocket.receive(rec);
+                byte[] in = rec.getData();
+                String ins = new String(in, 0, rec.getLength());
+                if (ins.equals("stop") || ins.equals("Exception")) break;
+                bufferedWriter.write(ins);
+                bufferedWriter.newLine();
+            }
+            bufferedWriter.close();
+        }catch (IOException e){
+            e.printStackTrace();
         }
     }
 }
