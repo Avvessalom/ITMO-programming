@@ -25,7 +25,7 @@ class Server {
         serverSocket = new DatagramSocket(9876); //отправка пакетов байтовых массивов для транспорта сообщений
         byte[] receiveData = new byte[1024]; // полученное сообщение
 
-        label:
+
         while (true) {
             DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length); // входящее сообщениt
             serverSocket.receive(receivePacket);
@@ -67,11 +67,25 @@ class Server {
                     break;
 
                 case "save":
-                    sendmsg("save");
+                    new Thread(()->{
+                        try{
+                            close();
+                        }catch(IOException e){
+                            e.printStackTrace();
+                        }
+                    }).start();
                     break;
 
                 case "exit":
-                    break label;
+                    new Thread(()->{
+                        try{
+                            close();
+                        }catch(IOException e){
+                            e.printStackTrace();
+                            System.out.println("ошибка");
+                        }
+                    }).start();
+                    break;
 
                 default:
                     sendmsg("You entered the wrong command! Read the list of commands carefully!");
@@ -103,12 +117,15 @@ class Server {
      */
     private static void add(String element) {
         try {
-            Characters characters = gson.fromJson(element, Characters.class);
-            System.out.println(characters);
-            if (characters.getName() != null) {
+            String name;
+            String size;
+            String location;
+            CopyOnWriteArraySet characters = new CopyOnWriteArraySet();
+            String[] ellement = element.split(",");
+            if (ellement[0].contains("name")){name = ellement[1];}
+            if (ellement[2].contains("size")){size = ellement[3];}
+            if (ellement[4].contains("location")){location = ellement[5];}
                 clients.get(port).add(characters);
-            } else
-                sendmsg("You can't add null element!");
         } catch (com.google.gson.JsonSyntaxException jx) {
             sendmsg("The strings describing the objects must be in the form of json!");
         }
@@ -163,4 +180,18 @@ class Server {
             e.printStackTrace();
         }
     }
+
+    private static void close() throws IOException{
+        String outputFile = "Client"+port+".json";
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputFile));
+        bufferedWriter.write("{\n");
+        clients.get(port).stream().forEach((x) -> {
+            try {
+                bufferedWriter.write("{ \n \"Characters\"" + ": \""+x.getName()+"\"" + ",\n" + "\"size\"" +": \""+x.getSize()+"\"" +
+                        ",\n" + "\"location\"" + ": \""+x.getLocation()+"\"" + "\n}");
+            }catch (IOException writeEx){ System.err.println("Output EXCEPTION during writing"); }
+        });
+        bufferedWriter.close();
+    }
+
 }

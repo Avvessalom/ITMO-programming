@@ -10,18 +10,18 @@ class Client
 {
     public static void main(String[] args) throws Exception
     {
-        BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in)); //чтение с клавиатуры
-        DatagramSocket clientSocket = new DatagramSocket();
-        InetAddress IPAddress = InetAddress.getByName("localhost");
-        byte[] sendData = new byte[1024];
-        byte[] receiveData = new byte[1024];
-
         while (true) {
             try{
+                DatagramSocket clientSocket = new DatagramSocket();
+                BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in)); //чтение с клавиатуры
+                InetAddress IPAddress = InetAddress.getByName("localhost");
+                byte[] sendData = new byte[1024];
+                byte[] receiveData = new byte[1024];
+
                 String sentence = inFromUser.readLine();//чтение с клавиатуры
                 String[] strings =sentence.split(" ");
 
-                if (strings[0] == "import"){
+                if (strings[0].equals("import")){
                     if(strings.length == 2){
                         File file = new File(strings[1]);
                         if(!file.exists())
@@ -64,6 +64,8 @@ class Client
                             }).start();
                         }
                     }else {System.err.println("Enter correct file name!");}
+
+
                 }else {
                     String sout = sentence;
                     new Thread(() -> {
@@ -71,27 +73,29 @@ class Client
                         DatagramPacket sendPacket = new DatagramPacket(send, send.length, IPAddress, 9876); // отправление команды с клавиатуры на сервер
                         try {
                             clientSocket.send(sendPacket);
+
+                            DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length); //получение пакета от сервера
+                            clientSocket.receive(receivePacket);
+                            String modifiedSentence = new String(receivePacket.getData());
+                            System.out.println("FROM SERVER:" + "\n" + modifiedSentence);
+
+
+                            clientSocket.close();
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
+
                     }).start();
+
                 }
 
 
+//                sendData = sentence.getBytes();
+//                DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 9876); // отправление команды с клавиатуры на сервер
+//                clientSocket.send(sendPacket);
 
-                sendData = sentence.getBytes();
-                DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 9876); // отправление команды с клавиатуры на сервер
-                clientSocket.send(sendPacket);
-
-
-                DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length); //получение пакета от сервера
-                clientSocket.receive(receivePacket);
-                String modifiedSentence = new String(receivePacket.getData());
-                System.out.println("FROM SERVER:" + "\n" + modifiedSentence);
-
-
-                clientSocket.close();
-            }catch (IOException e){e.printStackTrace();}
+            }catch (IOException e){e.printStackTrace();
+                System.out.println("end");}
         }
 }
 }
